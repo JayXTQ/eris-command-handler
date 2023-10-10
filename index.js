@@ -10,17 +10,18 @@ client.on('ready', async () => {
     let commands = []
     const loadedCommands = await client.getCommands()
     for (const commandName of commandNames) {
-        const commandFile = require(`./commands/${commandName}`)
-        const loadedCommand = loadedCommands.find(command => command.name === commandFile.name)
-        let command = {
-            name: commandFile.name,
-            description: commandFile.description,
-            type: commandFile.type
+        let command = require(`./commands/${commandName}`)
+        command = JSON.parse(JSON.stringify(commandFile))
+        if(!command.options) command.options = null;
+        let loadedCommand = loadedCommands.find(command => command.name === commandFile.name)
+        if(loadedCommand) loadedCommand = {
+            name: loadedCommand.name,
+            description: loadedCommand.description,
+            options: loadedCommand.options || null,
+            type: loadedCommand.type
         }
-        if(commandFile.options){
-            command.options = commandFile.options
-        }
-        if(loadedCommand && loadedCommand.description === command.description && loadedCommand.options === command.options && loadedCommand.type === command.type) continue;
+        if(loadedCommand && loadedCommand === command) continue;
+        if(commands.options === null) delete commands.options;
         commands.push(command)
     }
     if(commands.length > 0) await client.bulkEditCommands(commands)
