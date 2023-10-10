@@ -12,6 +12,11 @@ module.exports = {
             required: false
         }
     ],
+    /**
+     * @constructor
+     * @param {Eris.Client} client 
+     * @param {Eris.CommandInteraction} interaction 
+    */
     async run(client, interaction) {
         interaction.createMessage("Help command")
     }
