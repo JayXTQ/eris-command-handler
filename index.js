@@ -3,7 +3,7 @@ const Eris = require('eris')
 require("dotenv").config()
 
 const client = new Eris(process.env.TOKEN)
-const commands = []
+let commands = []
 
 client.on('ready', () => {
     commands = fs.readdirSync('./commands').filter(file => file.endsWith('.js'))
