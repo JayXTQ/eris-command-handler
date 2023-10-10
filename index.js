@@ -4,6 +4,9 @@ const { APIApplicationCommand } = require('discord-api-types/v10')
 require("dotenv").config()
 
 const client = new Eris(process.env.TOKEN)
+/**
+ * @type {string[]}
+ */
 let commandNames = []
 
 client.on('ready', async () => {
