@@ -41,3 +41,5 @@ client.on('interactionCreate', async (interaction) => {
         }
     }
 })
+
+client.connect()
