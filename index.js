@@ -4,20 +4,32 @@ const { APIApplicationCommand } = require('discord-api-types/v10')
 require("dotenv").config()
 
 const client = new Eris(process.env.TOKEN)
+
 /**
- * @type {string[]}
+ * @typedef {Object} Command
+ * @property {string} name
+ * @property {string} description
+ * @property {number} type
+ * @property {Eris.CommandOption[]} [options]
+ */
+
+
+/**
+ * @typedef {Object} CommandWithRun
+ * @property {Function} run
+ */
+
+/**
+ * @type {Record<string, Command | (Command & CommandWithRun)>}
  */
 let commands = {}
 
 client.on('ready', async () => {
-    /**
-     * @typedef {Object} Command
-     * @property {string} name
-     * @property {string} description
-     * @property {number} type
-     * @property {Eris.CommandOption[]} [options]
-     */
     let commandNames = fs.readdirSync('./commands').filter(file => file.endsWith('.js'))
+    /**
+     * @type {Record<string, string>}
+     */
+    let commandToFile = {}
     /**
      * @type {Command[]}
      */
@@ -31,11 +43,7 @@ client.on('ready', async () => {
          * @type {Command}
          */
         let command = JSON.parse(JSON.stringify(require(`./commands/${commandName}`)))
-        /**
-         * @typedef {Object} CommandWithRun
-         * @property {Function} run
-         */
-
+        commandToFile[command.name] = commandName
         /**
          * @type {(CommandWithRun & Command) | Command}
          */
@@ -51,7 +59,7 @@ client.on('ready', async () => {
     if(commands_.length > 0) await client.bulkEditCommands(commands_)
     const commandsLoaded = await client.getCommands()
     commandsLoaded.forEach(command => {
-        commands[command.name] = require(`./commands/${command.name}.js`)
+        commands[command.name] = require(`./commands/${commandToFile[command.name]}`)
     })
     console.log(`Loaded ${commandsLoaded.length} commands, ready`)
 })
