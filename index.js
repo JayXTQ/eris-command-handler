@@ -45,7 +45,7 @@ client.on('ready', async () => {
             loadedCommand = { name, description, options: options || undefined, type };
         }
         if(loadedCommand && loadedCommand === command) continue;
-        if(command.options === null) delete command.options;
+        if(!command.options) delete command.options;
         commands_.push(command)
     }
     if(commands_.length > 0) await client.bulkEditCommands(commands_)
