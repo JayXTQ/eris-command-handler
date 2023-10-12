@@ -7,7 +7,7 @@ const client = new Eris(process.env.TOKEN)
 /**
  * @type {string[]}
  */
-let commandNames = []
+let commands = {}
 
 client.on('ready', async () => {
     /**
@@ -17,11 +17,11 @@ client.on('ready', async () => {
      * @property {number} type
      * @property {Eris.CommandOption[]} [options]
      */
-    commandNames = fs.readdirSync('./commands').filter(file => file.endsWith('.js'))
+    let commandNames = fs.readdirSync('./commands').filter(file => file.endsWith('.js'))
     /**
      * @type {Command[]}
      */
-    let commands = []
+    let commands_ = []
     /**
      * @type {APIApplicationCommand[]}
      */
@@ -39,30 +39,32 @@ client.on('ready', async () => {
         /**
          * @type {(CommandWithRun & Command) | Command}
          */
-        let loadedCommand = loadedCommands.find(command => command.name === commandFile.name)
+        let loadedCommand = loadedCommands.find(cmd => cmd.name === command.name)
         if (loadedCommand) {
             const { name, description, options, type } = loadedCommand;
             loadedCommand = { name, description, options: options || undefined, type };
         }
         if(loadedCommand && loadedCommand === command) continue;
-        if(commands.options === null) delete commands.options;
-        commands.push(command)
+        if(command.options === null) delete command.options;
+        commands_.push(command)
     }
-    if(commands.length > 0) await client.bulkEditCommands(commands)
-    console.log(`Loaded ${(await client.getCommands()).length} commands, ready`)
+    if(commands_.length > 0) await client.bulkEditCommands(commands_)
+    const commandsLoaded = await client.getCommands()
+    commandsLoaded.forEach(command => {
+        commands[command.name] = require(`./commands/${command.name}.js`)
+    })
+    console.log(`Loaded ${commandsLoaded.length} commands, ready`)
 })
 
 client.on('interactionCreate', async (interaction) => {
     if (interaction instanceof Eris.CommandInteraction) {
-        for (const command of commands) {
-            try {
-                const commandFile = require(`./commands/${command}`)
-                if (commandFile.name === interaction.data.name) {
-                    await commandFile.run(client, interaction)
-                }
-            } catch(err) {
-                console.log(err)
-            }
+        try{
+            commands[interaction.data.name].run(client, interaction)
+        } catch(e) {
+            interaction.createMessage({
+                content: `Error`,
+                ephemeral: true
+            })
         }
     }
 })
