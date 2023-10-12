@@ -25,6 +25,7 @@ const client = new Eris(process.env.TOKEN)
 let commands = {}
 
 client.on('ready', async () => {
+    performance.mark('start')
     let commandNames = fs.readdirSync('./commands').filter(file => file.endsWith('.js'))
     /**
      * @type {Record<string, string>}
@@ -61,7 +62,8 @@ client.on('ready', async () => {
     commandsLoaded.forEach(command => {
         commands[command.name] = require(`./commands/${commandToFile[command.name]}`)
     })
-    console.log(`Loaded ${commandsLoaded.length} commands, ready`)
+    performance.mark('end')
+    console.log(`Loaded ${commandsLoaded.length} commands, ready in ${Math.round(performance.measure('ready event', 'start', 'end').duration)}ms`)
 })
 
 client.on('interactionCreate', async (interaction) => {
