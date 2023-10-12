@@ -68,7 +68,7 @@ client.on('interactionCreate', async (interaction) => {
     if (interaction instanceof Eris.CommandInteraction) {
         try{
             commands[interaction.data.name].run(client, interaction)
-        } catch(e) {
+        } catch(_) {
             interaction.createMessage({
                 content: `Error`,
                 ephemeral: true
