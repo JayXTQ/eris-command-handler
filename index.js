@@ -71,7 +71,7 @@ client.on('interactionCreate', async (interaction) => {
         } catch(_) {
             interaction.createMessage({
                 content: `Error`,
-                ephemeral: true
+                flags: 1 << 6
             })
         }
     }
